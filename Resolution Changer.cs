@@ -1,11 +1,65 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace Resolution_Changer
 {
     public partial class ResolutionChanger : Form
     {
+        private const string RegistryKeyPath = @"Software\AutistukralResolutionChanger";
+        private const string RegistryValueName1 = "Resolution1";
+        private const string RegistryValueName2 = "Resolution2";
+        private const string appName = "Autistukral Resolution Changer";
+
+        // Code to make the application top bar colored by the windows
+        [DllImport("DwmApi")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, int[] attrValue, int attrSize);
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            if (DwmSetWindowAttribute(Handle, 19, new[] { 1 }, 4) != 0)
+                DwmSetWindowAttribute(Handle, 20, new[] { 1 }, 4);
+        }
+
+        private void CustomComboBox()
+        {
+            // Set the DrawMode to OwnerDrawFixed
+            availableResolutionsCB.DrawMode = DrawMode.OwnerDrawFixed;
+            availableResolutionsCB.DrawItem += new DrawItemEventHandler(resCB_DrawItem);
+
+            availableResolutionsCB2.DrawMode = DrawMode.OwnerDrawFixed;
+            availableResolutionsCB2.DrawItem += new DrawItemEventHandler(resCB_DrawItem);
+        }
+
+        private void resCB_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            // Check if the item index is valid
+            if (e.Index < 0) return;
+
+            // Get the ComboBox control
+            System.Windows.Forms.ComboBox comboBox = (System.Windows.Forms.ComboBox)sender;
+
+            // Get the item to be drawn
+            string item = comboBox.Items[e.Index].ToString();
+
+            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+            {
+                e.Graphics.FillRectangle(new SolidBrush(comboBox.BackColor), e.Bounds);
+            }
+            else
+            {
+                e.Graphics.FillRectangle(new SolidBrush(comboBox.BackColor), e.Bounds);
+            }
+
+            // Set the text color for the item
+            e.Graphics.DrawString(item, e.Font, new SolidBrush(comboBox.ForeColor), e.Bounds);
+
+            // Draw the focus rectangle if the item has focus
+            e.DrawFocusRectangle();
+        }
+
+
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         public struct DEVMODE
         {
@@ -108,32 +162,14 @@ namespace Resolution_Changer
                 if (!availableResolutionsCB.Items.Contains(resolution))
                 {
                     availableResolutionsCB.Items.Add(resolution);
+                    availableResolutionsCB2.Items.Add(resolution);
                 }
                 modeNum++;
             }
 
             //Optionally select the current resolution
             availableResolutionsCB.SelectedIndex = availableResolutionsCB.Items.IndexOf($"{Screen.PrimaryScreen.Bounds.Width}x{Screen.PrimaryScreen.Bounds.Height}");
-        }
-
-        private void FillCBWithRes2()
-        {
-            DEVMODE dm = new DEVMODE();
-            dm.dmSize = (ushort)Marshal.SizeOf(typeof(DEVMODE));
-            int modeNum = 0;
-
-            while (EnumDisplaySettings(null, modeNum, ref dm))
-            {
-                string resolution = $"{dm.dmPelsWidth}x{dm.dmPelsHeight}";
-                if (!availableResolutionsCB.Items.Contains(resolution))
-                {
-                    availableResolutionsCB.Items.Add(resolution);
-                }
-                modeNum++;
-            }
-
-            //Optionally select the current resolution
-            availableResolutionsCB.SelectedIndex = availableResolutionsCB.Items.IndexOf($"{Screen.PrimaryScreen.Bounds.Width}x{Screen.PrimaryScreen.Bounds.Height}");
+            availableResolutionsCB2.SelectedIndex = availableResolutionsCB2.Items.IndexOf($"{Screen.PrimaryScreen.Bounds.Width}x{Screen.PrimaryScreen.Bounds.Height}");
         }
 
         [DllImport("user32.dll")]
@@ -166,6 +202,39 @@ namespace Resolution_Changer
                 }
             }
             base.WndProc(ref m);
+        }
+
+        private void SaveResolutionsToRegistry(string resolution1, string resolution2)
+        {
+            using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegistryKeyPath))
+            {
+                if (key != null)
+                {
+                    key.SetValue(RegistryValueName1, resolution1);
+                    key.SetValue(RegistryValueName2, resolution2);
+                }
+            }
+        }
+
+        private void LoadResolutionsFromRegistry()
+        {
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryKeyPath))
+            {
+                if (key != null)
+                {
+                    object resolutionValue = key.GetValue(RegistryValueName1);
+                    object resolutionValue2 = key.GetValue(RegistryValueName2);
+
+                    if (resolutionValue != null)
+                    {
+                        availableResolutionsCB.SelectedItem = resolutionValue.ToString();
+                    }
+                    if (resolutionValue2 != null)
+                    {
+                        availableResolutionsCB2.SelectedItem = resolutionValue2.ToString();
+                    }
+                }
+            }
         }
 
         private void ChangeResolution1()
@@ -207,14 +276,105 @@ namespace Resolution_Changer
 
         private void ResolutionChanger_Load(object sender, EventArgs e)
         {
+            // Check if the app is set to run at startup
+            runOnStartupToolStripMenuItem.Checked = IsRunAtStartup();
+            notifyIcon.Visible = true;
+
+            if (IsRunAtStartup() != null)
+            {
+                this.WindowState = FormWindowState.Minimized;
+                this.ShowInTaskbar = false;
+                this.Hide();
+                notifyIcon.Visible = true;
+            }
+
+            CustomComboBox();
+
             FillCBWithRes1();
-            FillCBWithRes2();
+            LoadResolutionsFromRegistry();
             RegisterHotKey(this.Handle, HOTKEY_ID, MOD_CONTROL | MOD_SHIFT, VK_1);
+            RegisterHotKey(this.Handle, HOTKEY_ID2, MOD_CONTROL | MOD_SHIFT, VK_2);
         }
 
         private void applyButton_Click(object sender, EventArgs e)
         {
-            
+            object resolutionValue1 = availableResolutionsCB.SelectedItem;
+            object resolutionValue2 = availableResolutionsCB2.SelectedItem;
+
+            SaveResolutionsToRegistry(resolutionValue1 as string, resolutionValue2 as string);
+        }
+
+        private void applyRes1Button_Click(object sender, EventArgs e)
+        {
+            ChangeResolution1();
+        }
+
+        private void applyRes2Button_Click(object sender, EventArgs e)
+        {
+            ChangeResolution2();
+        }
+
+        private void AddToStartup()
+        {
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+            key.SetValue(appName, Application.ExecutablePath);
+            key.Close();
+        }
+
+        private void RemoveFromStartup()
+        {
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+            key.DeleteValue(appName, false);
+            key.Close();
+        }
+
+        private bool IsRunAtStartup()
+        {
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+            return key.GetValue(appName) != null;
+        }
+
+        private void MouseTrailsForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true; // Cancel the form closing event
+            this.Hide(); // Hide the form
+            notifyIcon.Visible = true; // Show the NotifyIcon
+        }
+
+        private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            this.Show(); // Show the form
+            this.WindowState = FormWindowState.Normal; // Restore the window state
+            notifyIcon.Visible = true; // Hide the NotifyIcon
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            notifyIcon.Visible = true; // Hide the NotifyIcon
+            Application.Exit(); // Exit the application
+            Application.ExitThread();
+        }
+
+        private void showToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Show();
+            this.WindowState = FormWindowState.Normal;
+            notifyIcon.Visible = true;
+        }
+
+        private void runOnStartupToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Toggle the checked state
+            runOnStartupToolStripMenuItem.Checked = !runOnStartupToolStripMenuItem.Checked;
+
+            if (runOnStartupToolStripMenuItem.Checked)
+            {
+                AddToStartup();
+            }
+            else
+            {
+                RemoveFromStartup();
+            }
         }
     }
 }
