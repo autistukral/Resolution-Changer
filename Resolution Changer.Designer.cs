@@ -72,11 +72,12 @@
             applyButton.FlatAppearance.BorderSize = 0;
             applyButton.FlatStyle = FlatStyle.Flat;
             applyButton.Font = new Font("Segoe UI Black", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            applyButton.Location = new Point(104, 130);
+            applyButton.Location = new Point(125, 114);
             applyButton.Name = "applyButton";
-            applyButton.Size = new Size(120, 40);
+            applyButton.Size = new Size(80, 35);
             applyButton.TabIndex = 2;
-            applyButton.Text = "Apply";
+            applyButton.Text = "Save";
+            applyButton.TextAlign = ContentAlignment.TopCenter;
             applyButton.UseVisualStyleBackColor = false;
             applyButton.Click += applyButton_Click;
             // 
@@ -167,7 +168,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(15, 18, 21);
-            ClientSize = new Size(324, 182);
+            ClientSize = new Size(324, 161);
             Controls.Add(applyRes2Button);
             Controls.Add(applyRes1Button);
             Controls.Add(availableResolutionsCB2);
