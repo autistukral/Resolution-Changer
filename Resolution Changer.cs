@@ -218,15 +218,16 @@ namespace Resolution_Changer
 
             if (m.Msg == WM_HOTKEY)
             {
-                if (m.WParam.ToInt32() == HOTKEY_ID)
+                int id = m.WParam.ToInt32();
+                if (id == HOTKEY_ID)
                 {
                     ChangeResolution1();
                 }
-                else if (m.WParam.ToInt32() == HOTKEY_ID2)
+                else if (id == HOTKEY_ID2)
                 {
                     ChangeResolution2();
                 }
-                else if (m.WParam.ToInt32() == HOTKEY_ID3)
+                else if (id == HOTKEY_ID3)
                 {
                     ChangeResolution3();
                 }
@@ -331,27 +332,43 @@ namespace Resolution_Changer
         {
             InitializeComponent();
 
-            this.KeyDown += new KeyEventHandler(ResolutionChanger_KeyDown);
-            this.KeyPreview = true;
+            //this.KeyDown += new KeyEventHandler(ResolutionChanger_KeyDown);
+            //this.KeyPreview = true;
         }
 
-        private void ResolutionChanger_KeyDown(object sender, KeyEventArgs e)
+        //private void ResolutionChanger_KeyDown(object sender, KeyEventArgs e)
+        //{
+        //    if (e.Control && e.Shift && e.KeyCode == Keys.D1)
+        //    {
+        //        ChangeResolution1();
+        //        e.SuppressKeyPress = true;
+        //    }
+        //    else if (e.Control && e.Shift && e.KeyCode == Keys.D2)
+        //    {
+        //        ChangeResolution2();
+        //        e.SuppressKeyPress = true;
+        //    }
+        //    else if (e.Control && e.Shift && e.KeyCode == Keys.D3)
+        //    {
+        //        ChangeResolution3();
+        //        e.SuppressKeyPress = true;
+        //    }
+        //}
+
+        protected override void OnLoad(EventArgs e)
         {
-            if (e.Control && e.Shift && e.KeyCode == Keys.D1)
-            {
-                ChangeResolution1();
-                e.SuppressKeyPress = true;
-            }
-            else if (e.Control && e.Shift && e.KeyCode == Keys.D2)
-            {
-                ChangeResolution2();
-                e.SuppressKeyPress = true;
-            }
-            else if (e.Control && e.Shift && e.KeyCode == Keys.D3)
-            {
-                ChangeResolution3();
-                e.SuppressKeyPress = true;
-            }
+            base.OnLoad(e);
+
+            this.WindowState = FormWindowState.Minimized;
+            this.ShowInTaskbar = false;
+            this.Hide();
+
+            UnregisterHotKey(this.Handle, HOTKEY_ID); // Unregister first to avoid duplicates
+            RegisterHotKey(this.Handle, HOTKEY_ID, MOD_CONTROL | MOD_SHIFT, VK_1);
+            UnregisterHotKey(this.Handle, HOTKEY_ID2); // Unregister first to avoid duplicates
+            RegisterHotKey(this.Handle, HOTKEY_ID2, MOD_CONTROL | MOD_SHIFT, VK_2);
+            UnregisterHotKey(this.Handle, HOTKEY_ID3); // Unregister first to avoid duplicates
+            RegisterHotKey(this.Handle, HOTKEY_ID3, MOD_CONTROL | MOD_SHIFT, VK_3);
         }
 
         private void ResolutionChanger_Load(object sender, EventArgs e)
@@ -372,9 +389,34 @@ namespace Resolution_Changer
 
             FillCBWithRes1();
             LoadResolutionsFromRegistry();
+        }
+
+        private void ShowForm()
+        {
+            this.Show();
+            this.WindowState = FormWindowState.Normal;
+            this.ShowInTaskbar = true;
+            this.BringToFront();
+            this.Activate();
+
+            UnregisterHotKey(this.Handle, HOTKEY_ID); // Unregister first to avoid duplicates
             RegisterHotKey(this.Handle, HOTKEY_ID, MOD_CONTROL | MOD_SHIFT, VK_1);
+            UnregisterHotKey(this.Handle, HOTKEY_ID2); // Unregister first to avoid duplicates
             RegisterHotKey(this.Handle, HOTKEY_ID2, MOD_CONTROL | MOD_SHIFT, VK_2);
+            UnregisterHotKey(this.Handle, HOTKEY_ID3); // Unregister first to avoid duplicates
             RegisterHotKey(this.Handle, HOTKEY_ID3, MOD_CONTROL | MOD_SHIFT, VK_3);
+        }
+
+        private void ResolutionChanger_Resize(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                this.Hide();
+            }
+            else if (this.WindowState == FormWindowState.Normal || this.WindowState == FormWindowState.Maximized)
+            {
+                ShowForm();
+            }
         }
 
         private void applyButton_Click(object sender, EventArgs e)
@@ -421,7 +463,7 @@ namespace Resolution_Changer
             return key.GetValue(appName) != null;
         }
 
-        private void MouseTrailsForm_FormClosing(object sender, FormClosingEventArgs e)
+        private void ResolutionChanger_FormClosing(object sender, FormClosingEventArgs e)
         {
             e.Cancel = true; // Cancel the form closing event
             this.Hide(); // Hide the form
@@ -430,10 +472,7 @@ namespace Resolution_Changer
 
         private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            this.Show();
-            this.WindowState = FormWindowState.Normal;
-            notifyIcon.Visible = true;
-            this.ShowInTaskbar = true;
+            ShowForm();
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -441,6 +480,10 @@ namespace Resolution_Changer
             notifyIcon.Visible = true; // Hide the NotifyIcon
             Application.Exit(); // Exit the application
             Application.ExitThread();
+
+            UnregisterHotKey(this.Handle, HOTKEY_ID);
+            UnregisterHotKey(this.Handle, HOTKEY_ID2);
+            UnregisterHotKey(this.Handle, HOTKEY_ID3);
         }
 
         private void showToolStripMenuItem_Click(object sender, EventArgs e)

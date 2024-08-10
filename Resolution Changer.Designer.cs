@@ -224,7 +224,7 @@
             Name = "ResolutionChanger";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Resolution Changer";
-            FormClosing += MouseTrailsForm_FormClosing;
+            FormClosing += ResolutionChanger_FormClosing;
             Load += ResolutionChanger_Load;
             contextMenuStrip.ResumeLayout(false);
             ResumeLayout(false);
