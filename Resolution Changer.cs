@@ -331,29 +331,7 @@ namespace Resolution_Changer
         public ResolutionChanger()
         {
             InitializeComponent();
-
-            //this.KeyDown += new KeyEventHandler(ResolutionChanger_KeyDown);
-            //this.KeyPreview = true;
         }
-
-        //private void ResolutionChanger_KeyDown(object sender, KeyEventArgs e)
-        //{
-        //    if (e.Control && e.Shift && e.KeyCode == Keys.D1)
-        //    {
-        //        ChangeResolution1();
-        //        e.SuppressKeyPress = true;
-        //    }
-        //    else if (e.Control && e.Shift && e.KeyCode == Keys.D2)
-        //    {
-        //        ChangeResolution2();
-        //        e.SuppressKeyPress = true;
-        //    }
-        //    else if (e.Control && e.Shift && e.KeyCode == Keys.D3)
-        //    {
-        //        ChangeResolution3();
-        //        e.SuppressKeyPress = true;
-        //    }
-        //}
 
         protected override void OnLoad(EventArgs e)
         {
