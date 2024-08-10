@@ -33,7 +33,7 @@
             availableResolutionsCB = new ComboBox();
             resolution1Label = new Label();
             applyButton = new Button();
-            label1 = new Label();
+            resolution2Label = new Label();
             availableResolutionsCB2 = new ComboBox();
             notifyIcon = new NotifyIcon(components);
             contextMenuStrip = new ContextMenuStrip(components);
@@ -42,6 +42,9 @@
             exitToolStripMenuItem = new ToolStripMenuItem();
             applyRes1Button = new Button();
             applyRes2Button = new Button();
+            resolution3Label = new Label();
+            availableResolutionsCB3 = new ComboBox();
+            applyRes3Button = new Button();
             contextMenuStrip.SuspendLayout();
             SuspendLayout();
             // 
@@ -52,7 +55,7 @@
             availableResolutionsCB.FlatStyle = FlatStyle.Flat;
             availableResolutionsCB.ForeColor = Color.White;
             availableResolutionsCB.FormattingEnabled = true;
-            availableResolutionsCB.Location = new Point(93, 39);
+            availableResolutionsCB.Location = new Point(93, 15);
             availableResolutionsCB.Name = "availableResolutionsCB";
             availableResolutionsCB.Size = new Size(120, 23);
             availableResolutionsCB.TabIndex = 0;
@@ -60,7 +63,7 @@
             // resolution1Label
             // 
             resolution1Label.AutoSize = true;
-            resolution1Label.Location = new Point(12, 45);
+            resolution1Label.Location = new Point(12, 21);
             resolution1Label.Name = "resolution1Label";
             resolution1Label.Size = new Size(75, 15);
             resolution1Label.TabIndex = 1;
@@ -72,7 +75,7 @@
             applyButton.FlatAppearance.BorderSize = 0;
             applyButton.FlatStyle = FlatStyle.Flat;
             applyButton.Font = new Font("Segoe UI Black", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            applyButton.Location = new Point(125, 114);
+            applyButton.Location = new Point(125, 116);
             applyButton.Name = "applyButton";
             applyButton.Size = new Size(80, 35);
             applyButton.TabIndex = 2;
@@ -81,14 +84,14 @@
             applyButton.UseVisualStyleBackColor = false;
             applyButton.Click += applyButton_Click;
             // 
-            // label1
+            // resolution2Label
             // 
-            label1.AutoSize = true;
-            label1.Location = new Point(12, 79);
-            label1.Name = "label1";
-            label1.Size = new Size(75, 15);
-            label1.TabIndex = 3;
-            label1.Text = "Resolution 2:";
+            resolution2Label.AutoSize = true;
+            resolution2Label.Location = new Point(12, 55);
+            resolution2Label.Name = "resolution2Label";
+            resolution2Label.Size = new Size(75, 15);
+            resolution2Label.TabIndex = 3;
+            resolution2Label.Text = "Resolution 2:";
             // 
             // availableResolutionsCB2
             // 
@@ -97,7 +100,7 @@
             availableResolutionsCB2.FlatStyle = FlatStyle.Flat;
             availableResolutionsCB2.ForeColor = Color.White;
             availableResolutionsCB2.FormattingEnabled = true;
-            availableResolutionsCB2.Location = new Point(93, 73);
+            availableResolutionsCB2.Location = new Point(93, 49);
             availableResolutionsCB2.Name = "availableResolutionsCB2";
             availableResolutionsCB2.Size = new Size(120, 23);
             availableResolutionsCB2.TabIndex = 4;
@@ -142,9 +145,9 @@
             applyRes1Button.BackColor = Color.FromArgb(52, 55, 69);
             applyRes1Button.FlatAppearance.BorderSize = 0;
             applyRes1Button.FlatStyle = FlatStyle.Flat;
-            applyRes1Button.Location = new Point(219, 39);
+            applyRes1Button.Location = new Point(219, 15);
             applyRes1Button.Name = "applyRes1Button";
-            applyRes1Button.Size = new Size(90, 23);
+            applyRes1Button.Size = new Size(90, 24);
             applyRes1Button.TabIndex = 5;
             applyRes1Button.Text = "Ctrl+Shift+1";
             applyRes1Button.UseVisualStyleBackColor = false;
@@ -155,13 +158,48 @@
             applyRes2Button.BackColor = Color.FromArgb(52, 55, 69);
             applyRes2Button.FlatAppearance.BorderSize = 0;
             applyRes2Button.FlatStyle = FlatStyle.Flat;
-            applyRes2Button.Location = new Point(219, 73);
+            applyRes2Button.Location = new Point(219, 49);
             applyRes2Button.Name = "applyRes2Button";
-            applyRes2Button.Size = new Size(90, 23);
+            applyRes2Button.Size = new Size(90, 24);
             applyRes2Button.TabIndex = 6;
             applyRes2Button.Text = "Ctrl+Shift+2";
             applyRes2Button.UseVisualStyleBackColor = false;
             applyRes2Button.Click += applyRes2Button_Click;
+            // 
+            // resolution3Label
+            // 
+            resolution3Label.AutoSize = true;
+            resolution3Label.Location = new Point(12, 89);
+            resolution3Label.Name = "resolution3Label";
+            resolution3Label.Size = new Size(75, 15);
+            resolution3Label.TabIndex = 7;
+            resolution3Label.Text = "Resolution 3:";
+            // 
+            // availableResolutionsCB3
+            // 
+            availableResolutionsCB3.BackColor = Color.FromArgb(52, 54, 69);
+            availableResolutionsCB3.DropDownStyle = ComboBoxStyle.DropDownList;
+            availableResolutionsCB3.DropDownWidth = 120;
+            availableResolutionsCB3.FlatStyle = FlatStyle.Flat;
+            availableResolutionsCB3.ForeColor = Color.White;
+            availableResolutionsCB3.FormattingEnabled = true;
+            availableResolutionsCB3.Location = new Point(93, 83);
+            availableResolutionsCB3.Name = "availableResolutionsCB3";
+            availableResolutionsCB3.Size = new Size(121, 23);
+            availableResolutionsCB3.TabIndex = 8;
+            // 
+            // applyRes3Button
+            // 
+            applyRes3Button.BackColor = Color.FromArgb(52, 55, 69);
+            applyRes3Button.FlatAppearance.BorderSize = 0;
+            applyRes3Button.FlatStyle = FlatStyle.Flat;
+            applyRes3Button.Location = new Point(219, 83);
+            applyRes3Button.Name = "applyRes3Button";
+            applyRes3Button.Size = new Size(90, 24);
+            applyRes3Button.TabIndex = 9;
+            applyRes3Button.Text = "Ctrl+Shift+3";
+            applyRes3Button.UseVisualStyleBackColor = false;
+            applyRes3Button.Click += applyRes3Button_Click;
             // 
             // ResolutionChanger
             // 
@@ -169,10 +207,13 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(15, 18, 21);
             ClientSize = new Size(324, 161);
+            Controls.Add(applyRes3Button);
+            Controls.Add(availableResolutionsCB3);
+            Controls.Add(resolution3Label);
             Controls.Add(applyRes2Button);
             Controls.Add(applyRes1Button);
             Controls.Add(availableResolutionsCB2);
-            Controls.Add(label1);
+            Controls.Add(resolution2Label);
             Controls.Add(applyButton);
             Controls.Add(resolution1Label);
             Controls.Add(availableResolutionsCB);
@@ -195,7 +236,7 @@
         private ComboBox availableResolutionsCB;
         private Label resolution1Label;
         private Button applyButton;
-        private Label label1;
+        private Label resolution2Label;
         private ComboBox availableResolutionsCB2;
         private NotifyIcon notifyIcon;
         private ContextMenuStrip contextMenuStrip;
@@ -204,5 +245,8 @@
         private ToolStripMenuItem exitToolStripMenuItem;
         private Button applyRes1Button;
         private Button applyRes2Button;
+        private Label resolution3Label;
+        private ComboBox availableResolutionsCB3;
+        private Button applyRes3Button;
     }
 }
