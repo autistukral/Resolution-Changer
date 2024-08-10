@@ -5,3 +5,5 @@ Also saves the resolutions so that apps such as CS2 won't switch the resolution 
 This app shows all available resolutions with the highest available refresh rate.
 
 At this time you can set 3 resolutions with corresponding shortcuts Ctrl+Shift+1-3
+
+This app has Start on startup option.
