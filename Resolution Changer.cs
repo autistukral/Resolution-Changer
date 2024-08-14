@@ -25,6 +25,62 @@ namespace Resolution_Changer
                 DwmSetWindowAttribute(Handle, 20, new[] { 1 }, 4);
         }
 
+        public class MenuColorTable : ProfessionalColorTable
+        {
+            public MenuColorTable()
+            {
+                UseSystemColors = false;
+            }
+            public override Color MenuBorder
+            {
+                get { return Color.FromArgb(46,48,59); }
+            }
+            public override Color MenuItemBorder
+            {
+                get { return Color.FromArgb(200,200,200); }
+            }
+            public override Color MenuItemSelected
+            {
+                get { return Color.FromArgb(69,72,90); }
+            }
+            public override Color MenuItemSelectedGradientBegin
+            {
+                get { return Color.FromArgb(69,72,90); }
+            }
+            public override Color MenuItemSelectedGradientEnd
+            {
+                get { return Color.FromArgb(69,72,90); }
+            }
+            public override Color CheckBackground
+            {
+                get { return Color.FromArgb(46, 48, 59); }
+            }
+            public override Color CheckPressedBackground
+            {
+                get { return Color.FromArgb(46, 48, 59); }
+            }
+            public override Color CheckSelectedBackground
+            {
+                get { return Color.FromArgb(46, 48, 59); }
+            }
+            public override Color ImageMarginGradientBegin
+            {
+                get { return Color.FromArgb(36, 38, 49); }
+            }
+            public override Color ImageMarginGradientMiddle
+            {
+                get { return Color.FromArgb(36, 38, 49); }
+            }
+            public override Color ImageMarginGradientEnd
+            {
+                get { return Color.FromArgb(36, 38, 49); }
+            }
+            public override Color GripLight
+            {
+                get { return Color.FromArgb(200, 200, 200); }
+            }
+        }
+
         private void CustomComboBox()
         {
             // Set the DrawMode to OwnerDrawFixed
@@ -331,6 +387,8 @@ namespace Resolution_Changer
         public ResolutionChanger()
         {
             InitializeComponent();
+
+            contextMenuStrip.Renderer = new ToolStripProfessionalRenderer(new MenuColorTable());
         }
 
         protected override void OnLoad(EventArgs e)

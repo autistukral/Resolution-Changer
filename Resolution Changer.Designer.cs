@@ -115,28 +115,32 @@
             // 
             // contextMenuStrip
             // 
+            contextMenuStrip.BackColor = Color.FromArgb(36, 38, 49);
+            contextMenuStrip.BackgroundImageLayout = ImageLayout.None;
+            contextMenuStrip.ForeColor = Color.White;
             contextMenuStrip.Items.AddRange(new ToolStripItem[] { runOnStartupToolStripMenuItem, showToolStripMenuItem, exitToolStripMenuItem });
             contextMenuStrip.Name = "contextMenuStrip";
-            contextMenuStrip.Size = new Size(153, 70);
+            contextMenuStrip.RenderMode = ToolStripRenderMode.Professional;
+            contextMenuStrip.Size = new Size(181, 92);
             // 
             // runOnStartupToolStripMenuItem
             // 
             runOnStartupToolStripMenuItem.Name = "runOnStartupToolStripMenuItem";
-            runOnStartupToolStripMenuItem.Size = new Size(152, 22);
+            runOnStartupToolStripMenuItem.Size = new Size(180, 22);
             runOnStartupToolStripMenuItem.Text = "Run on startup";
             runOnStartupToolStripMenuItem.Click += runOnStartupToolStripMenuItem_Click;
             // 
             // showToolStripMenuItem
             // 
             showToolStripMenuItem.Name = "showToolStripMenuItem";
-            showToolStripMenuItem.Size = new Size(152, 22);
+            showToolStripMenuItem.Size = new Size(180, 22);
             showToolStripMenuItem.Text = "Show";
             showToolStripMenuItem.Click += showToolStripMenuItem_Click;
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(152, 22);
+            exitToolStripMenuItem.Size = new Size(180, 22);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
