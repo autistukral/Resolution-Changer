@@ -154,7 +154,7 @@
             applyRes1Button.FlatStyle = FlatStyle.Flat;
             applyRes1Button.Location = new Point(219, 15);
             applyRes1Button.Name = "applyRes1Button";
-            applyRes1Button.Size = new Size(90, 23);
+            applyRes1Button.Size = new Size(90, 24);
             applyRes1Button.TabIndex = 5;
             applyRes1Button.Text = "Ctrl+Shift+1";
             applyRes1Button.UseVisualStyleBackColor = false;
@@ -167,7 +167,7 @@
             applyRes2Button.FlatStyle = FlatStyle.Flat;
             applyRes2Button.Location = new Point(219, 49);
             applyRes2Button.Name = "applyRes2Button";
-            applyRes2Button.Size = new Size(90, 23);
+            applyRes2Button.Size = new Size(90, 24);
             applyRes2Button.TabIndex = 6;
             applyRes2Button.Text = "Ctrl+Shift+2";
             applyRes2Button.UseVisualStyleBackColor = false;
@@ -202,7 +202,7 @@
             applyRes3Button.FlatStyle = FlatStyle.Flat;
             applyRes3Button.Location = new Point(220, 83);
             applyRes3Button.Name = "applyRes3Button";
-            applyRes3Button.Size = new Size(90, 23);
+            applyRes3Button.Size = new Size(90, 24);
             applyRes3Button.TabIndex = 9;
             applyRes3Button.Text = "Ctrl+Shift+3";
             applyRes3Button.UseVisualStyleBackColor = false;
@@ -215,7 +215,7 @@
             applyRes4Button.FlatStyle = FlatStyle.Flat;
             applyRes4Button.Location = new Point(219, 117);
             applyRes4Button.Name = "applyRes4Button";
-            applyRes4Button.Size = new Size(90, 23);
+            applyRes4Button.Size = new Size(90, 24);
             applyRes4Button.TabIndex = 10;
             applyRes4Button.Text = "Ctrl+Shift+4";
             applyRes4Button.UseVisualStyleBackColor = false;
