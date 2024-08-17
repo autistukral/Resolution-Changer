@@ -432,7 +432,6 @@ namespace Resolution_Changer
             base.OnLoad(e);
 
             this.WindowState = FormWindowState.Minimized;
-            this.ShowInTaskbar = false;
             this.Hide();
 
             UnregisterHotKey(this.Handle, HOTKEY_ID); // Unregister first to avoid duplicates
@@ -454,9 +453,8 @@ namespace Resolution_Changer
             if (IsRunAtStartup() != null)
             {
                 this.WindowState = FormWindowState.Minimized;
-                this.ShowInTaskbar = false;
                 this.Hide();
-                notifyIcon.Visible = true;
+                this.ShowInTaskbar = false;
             }
 
             CustomComboBox();
@@ -467,9 +465,9 @@ namespace Resolution_Changer
 
         private void ShowForm()
         {
+            this.ShowInTaskbar = true;
             this.Show();
             this.WindowState = FormWindowState.Normal;
-            this.ShowInTaskbar = true;
             this.BringToFront();
             this.Activate();
 
@@ -488,6 +486,7 @@ namespace Resolution_Changer
             if (this.WindowState == FormWindowState.Minimized)
             {
                 this.Hide();
+                this.ShowInTaskbar = false;
             }
             else if (this.WindowState == FormWindowState.Normal || this.WindowState == FormWindowState.Maximized)
             {
@@ -549,7 +548,6 @@ namespace Resolution_Changer
         {
             e.Cancel = true; // Cancel the form closing event
             this.Hide(); // Hide the form
-            this.ShowInTaskbar = false;
             notifyIcon.Visible = true; // Show the NotifyIcon
         }
 
