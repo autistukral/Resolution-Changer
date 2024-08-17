@@ -11,6 +11,7 @@ namespace Resolution_Changer
         private const string RegistryValueName1 = "Resolution1";
         private const string RegistryValueName2 = "Resolution2";
         private const string RegistryValueName3 = "Resolution3";
+        private const string RegistryValueName4 = "Resolution4";
         private const string appName = "Autistukral Resolution Changer";
 
         private System.Windows.Forms.Timer updateTimer;
@@ -33,23 +34,23 @@ namespace Resolution_Changer
             }
             public override Color MenuBorder
             {
-                get { return Color.FromArgb(46,48,59); }
+                get { return Color.FromArgb(46, 48, 59); }
             }
             public override Color MenuItemBorder
             {
-                get { return Color.FromArgb(200,200,200); }
+                get { return Color.FromArgb(200, 200, 200); }
             }
             public override Color MenuItemSelected
             {
-                get { return Color.FromArgb(69,72,90); }
+                get { return Color.FromArgb(69, 72, 90); }
             }
             public override Color MenuItemSelectedGradientBegin
             {
-                get { return Color.FromArgb(69,72,90); }
+                get { return Color.FromArgb(69, 72, 90); }
             }
             public override Color MenuItemSelectedGradientEnd
             {
-                get { return Color.FromArgb(69,72,90); }
+                get { return Color.FromArgb(69, 72, 90); }
             }
             public override Color CheckBackground
             {
@@ -92,6 +93,9 @@ namespace Resolution_Changer
 
             availableResolutionsCB3.DrawMode = DrawMode.OwnerDrawFixed;
             availableResolutionsCB3.DrawItem += new DrawItemEventHandler(resCB_DrawItem);
+
+            availableResolutionsCB4.DrawMode = DrawMode.OwnerDrawFixed;
+            availableResolutionsCB4.DrawItem += new DrawItemEventHandler(resCB_DrawItem);
         }
 
         private void resCB_DrawItem(object sender, DrawItemEventArgs e)
@@ -244,12 +248,14 @@ namespace Resolution_Changer
                 availableResolutionsCB.Items.Add($"{item.Key}@{item.Value}");
                 availableResolutionsCB2.Items.Add($"{item.Key}@{item.Value}");
                 availableResolutionsCB3.Items.Add($"{item.Key}@{item.Value}");
+                availableResolutionsCB4.Items.Add($"{item.Key}@{item.Value}");
             }
 
             //Optionally select the current resolution
             availableResolutionsCB.SelectedIndex = availableResolutionsCB.Items.IndexOf($"{Screen.PrimaryScreen.Bounds.Width}x{Screen.PrimaryScreen.Bounds.Height}@{dm.dmDisplayFrequency}");
             availableResolutionsCB2.SelectedIndex = availableResolutionsCB2.Items.IndexOf($"{Screen.PrimaryScreen.Bounds.Width}x{Screen.PrimaryScreen.Bounds.Height}@{dm.dmDisplayFrequency}");
             availableResolutionsCB3.SelectedIndex = availableResolutionsCB3.Items.IndexOf($"{Screen.PrimaryScreen.Bounds.Width}x{Screen.PrimaryScreen.Bounds.Height}@{dm.dmDisplayFrequency}");
+            availableResolutionsCB4.SelectedIndex = availableResolutionsCB4.Items.IndexOf($"{Screen.PrimaryScreen.Bounds.Width}x{Screen.PrimaryScreen.Bounds.Height}@{dm.dmDisplayFrequency}");
         }
 
         [DllImport("user32.dll")]
@@ -262,11 +268,13 @@ namespace Resolution_Changer
         private const int HOTKEY_ID = 9000; // Arbitrary ID for the hotkey
         private const int HOTKEY_ID2 = 9001;
         private const int HOTKEY_ID3 = 9002;
+        private const int HOTKEY_ID4 = 9003;
         private const uint MOD_CONTROL = 0x0002; // Control key modifier
         private const uint MOD_SHIFT = 0x0004; // Shift key modifier
         private const uint VK_1 = 0x31; // '1' key virtual key code
         private const uint VK_2 = 0x32; // '2' key virtual key code
         private const uint VK_3 = 0x33; // '3' key virtual key code
+        private const uint VK_4 = 0x34; // '4' key virtual key code
 
         protected override void WndProc(ref Message m)
         {
@@ -287,11 +295,15 @@ namespace Resolution_Changer
                 {
                     ChangeResolution3();
                 }
+                else if (id == HOTKEY_ID4)
+                {
+                    ChangeResolution4();
+                }
             }
             base.WndProc(ref m);
         }
 
-        private void SaveResolutionsToRegistry(string resolution1, string resolution2, string resolution3)
+        private void SaveResolutionsToRegistry(string resolution1, string resolution2, string resolution3, string resolution4)
         {
             using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegistryKeyPath))
             {
@@ -300,6 +312,7 @@ namespace Resolution_Changer
                     key.SetValue(RegistryValueName1, resolution1);
                     key.SetValue(RegistryValueName2, resolution2);
                     key.SetValue(RegistryValueName3, resolution3);
+                    key.SetValue(RegistryValueName4, resolution4);
                 }
             }
         }
@@ -313,6 +326,7 @@ namespace Resolution_Changer
                     object resolutionValue = key.GetValue(RegistryValueName1);
                     object resolutionValue2 = key.GetValue(RegistryValueName2);
                     object resolutionValue3 = key.GetValue(RegistryValueName3);
+                    object resolutionValue4 = key.GetValue(RegistryValueName4);
 
                     if (resolutionValue != null)
                     {
@@ -326,6 +340,10 @@ namespace Resolution_Changer
                     {
                         availableResolutionsCB3.SelectedItem = resolutionValue3.ToString();
                     }
+                    if (resolutionValue4 != null)
+                    {
+                        availableResolutionsCB4.SelectedItem = resolutionValue4.ToString();
+                    }
                 }
             }
         }
@@ -333,7 +351,7 @@ namespace Resolution_Changer
         private void ChangeResolution1()
         {
             string selectedResolution = availableResolutionsCB.SelectedItem.ToString();
-            string[] dimensions = selectedResolution.Split('x','@');
+            string[] dimensions = selectedResolution.Split('x', '@');
             int width = int.Parse(dimensions[0]);
             int height = int.Parse(dimensions[1]);
             int refresh = int.Parse(dimensions[2]);
@@ -384,6 +402,24 @@ namespace Resolution_Changer
             DISP_CHANGE result = ChangeDisplaySettingsEx(null, ref dm, IntPtr.Zero, CDS_UPDATEREGISTRY | CDS_GLOBAL, IntPtr.Zero);
         }
 
+        private void ChangeResolution4()
+        {
+            string selectedResolution = availableResolutionsCB4.SelectedItem.ToString();
+            string[] dimensions = selectedResolution.Split('x', '@');
+            int width = int.Parse(dimensions[0]);
+            int height = int.Parse(dimensions[1]);
+            int refresh = int.Parse(dimensions[2]);
+
+            DEVMODE dm = new DEVMODE();
+            dm.dmSize = (ushort)Marshal.SizeOf(typeof(DEVMODE));
+            dm.dmPelsWidth = (uint)width;
+            dm.dmPelsHeight = (uint)height;
+            dm.dmDisplayFrequency = (uint)refresh;
+            dm.dmFields = (uint)(DM.PelsWidth | DM.PelsHeight);
+
+            DISP_CHANGE result = ChangeDisplaySettingsEx(null, ref dm, IntPtr.Zero, CDS_UPDATEREGISTRY | CDS_GLOBAL, IntPtr.Zero);
+        }
+
         public ResolutionChanger()
         {
             InitializeComponent();
@@ -405,6 +441,8 @@ namespace Resolution_Changer
             RegisterHotKey(this.Handle, HOTKEY_ID2, MOD_CONTROL | MOD_SHIFT, VK_2);
             UnregisterHotKey(this.Handle, HOTKEY_ID3); // Unregister first to avoid duplicates
             RegisterHotKey(this.Handle, HOTKEY_ID3, MOD_CONTROL | MOD_SHIFT, VK_3);
+            UnregisterHotKey(this.Handle, HOTKEY_ID4); // Unregister first to avoid duplicates
+            RegisterHotKey(this.Handle, HOTKEY_ID4, MOD_CONTROL | MOD_SHIFT, VK_4);
         }
 
         private void ResolutionChanger_Load(object sender, EventArgs e)
@@ -441,6 +479,8 @@ namespace Resolution_Changer
             RegisterHotKey(this.Handle, HOTKEY_ID2, MOD_CONTROL | MOD_SHIFT, VK_2);
             UnregisterHotKey(this.Handle, HOTKEY_ID3); // Unregister first to avoid duplicates
             RegisterHotKey(this.Handle, HOTKEY_ID3, MOD_CONTROL | MOD_SHIFT, VK_3);
+            UnregisterHotKey(this.Handle, HOTKEY_ID4); // Unregister first to avoid duplicates
+            RegisterHotKey(this.Handle, HOTKEY_ID4, MOD_CONTROL | MOD_SHIFT, VK_4);
         }
 
         private void ResolutionChanger_Resize(object sender, EventArgs e)
@@ -460,8 +500,9 @@ namespace Resolution_Changer
             object resolutionValue1 = availableResolutionsCB.SelectedItem;
             object resolutionValue2 = availableResolutionsCB2.SelectedItem;
             object resolutionValue3 = availableResolutionsCB3.SelectedItem;
+            object resolutionValue4 = availableResolutionsCB4.SelectedItem;
 
-            SaveResolutionsToRegistry(resolutionValue1 as string, resolutionValue2 as string, resolutionValue3 as string);
+            SaveResolutionsToRegistry(resolutionValue1 as string, resolutionValue2 as string, resolutionValue3 as string, resolutionValue4 as string);
         }
 
         private void applyRes1Button_Click(object sender, EventArgs e)
@@ -477,6 +518,11 @@ namespace Resolution_Changer
         private void applyRes3Button_Click(object sender, EventArgs e)
         {
             ChangeResolution3();
+        }
+
+        private void applyRes4Button_Click(object sender, EventArgs e)
+        {
+            ChangeResolution4();
         }
 
         private void AddToStartup()
@@ -503,6 +549,7 @@ namespace Resolution_Changer
         {
             e.Cancel = true; // Cancel the form closing event
             this.Hide(); // Hide the form
+            this.ShowInTaskbar = false;
             notifyIcon.Visible = true; // Show the NotifyIcon
         }
 
@@ -520,13 +567,12 @@ namespace Resolution_Changer
             UnregisterHotKey(this.Handle, HOTKEY_ID);
             UnregisterHotKey(this.Handle, HOTKEY_ID2);
             UnregisterHotKey(this.Handle, HOTKEY_ID3);
+            UnregisterHotKey(this.Handle, HOTKEY_ID4);
         }
 
         private void showToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.Show();
-            this.WindowState = FormWindowState.Normal;
-            notifyIcon.Visible = true;
+            ShowForm();
         }
 
         private void runOnStartupToolStripMenuItem_Click(object sender, EventArgs e)
@@ -543,6 +589,5 @@ namespace Resolution_Changer
                 RemoveFromStartup();
             }
         }
-
     }
 }
