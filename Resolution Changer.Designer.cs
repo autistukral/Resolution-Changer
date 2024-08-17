@@ -190,7 +190,7 @@
             availableResolutionsCB3.FlatStyle = FlatStyle.Flat;
             availableResolutionsCB3.ForeColor = Color.White;
             availableResolutionsCB3.FormattingEnabled = true;
-            availableResolutionsCB3.Location = new Point(93, 84);
+            availableResolutionsCB3.Location = new Point(93, 83);
             availableResolutionsCB3.Name = "availableResolutionsCB3";
             availableResolutionsCB3.Size = new Size(121, 23);
             availableResolutionsCB3.TabIndex = 8;
@@ -200,7 +200,7 @@
             applyRes3Button.BackColor = Color.FromArgb(52, 55, 69);
             applyRes3Button.FlatAppearance.BorderSize = 0;
             applyRes3Button.FlatStyle = FlatStyle.Flat;
-            applyRes3Button.Location = new Point(220, 84);
+            applyRes3Button.Location = new Point(220, 83);
             applyRes3Button.Name = "applyRes3Button";
             applyRes3Button.Size = new Size(90, 23);
             applyRes3Button.TabIndex = 9;
@@ -213,7 +213,7 @@
             applyRes4Button.BackColor = Color.FromArgb(52, 55, 69);
             applyRes4Button.FlatAppearance.BorderSize = 0;
             applyRes4Button.FlatStyle = FlatStyle.Flat;
-            applyRes4Button.Location = new Point(219, 118);
+            applyRes4Button.Location = new Point(219, 117);
             applyRes4Button.Name = "applyRes4Button";
             applyRes4Button.Size = new Size(90, 23);
             applyRes4Button.TabIndex = 10;
@@ -224,7 +224,7 @@
             // resolution4Label
             // 
             resolution4Label.AutoSize = true;
-            resolution4Label.Location = new Point(12, 124);
+            resolution4Label.Location = new Point(12, 123);
             resolution4Label.Name = "resolution4Label";
             resolution4Label.Size = new Size(75, 15);
             resolution4Label.TabIndex = 11;
@@ -238,7 +238,7 @@
             availableResolutionsCB4.FlatStyle = FlatStyle.Flat;
             availableResolutionsCB4.ForeColor = Color.White;
             availableResolutionsCB4.FormattingEnabled = true;
-            availableResolutionsCB4.Location = new Point(93, 118);
+            availableResolutionsCB4.Location = new Point(93, 117);
             availableResolutionsCB4.Name = "availableResolutionsCB4";
             availableResolutionsCB4.Size = new Size(121, 23);
             availableResolutionsCB4.TabIndex = 12;
