@@ -10,6 +10,7 @@ This app shows all available resolutions with the highest available refresh rate
 
 ## System Tray
 
+Context Menu
 ![Context Menu Screenshot](resources/screenshots/res_changer_context_menu.png)
 
 
