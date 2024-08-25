@@ -37,6 +37,9 @@
             availableResolutionsCB2 = new ComboBox();
             notifyIcon = new NotifyIcon(components);
             contextMenuStrip = new ContextMenuStrip(components);
+            resolution1ToolStripMenuItem = new ToolStripMenuItem();
+            resolution2ToolStripMenuItem = new ToolStripMenuItem();
+            resolution3ToolStripMenuItem = new ToolStripMenuItem();
             runOnStartupToolStripMenuItem = new ToolStripMenuItem();
             showToolStripMenuItem = new ToolStripMenuItem();
             exitToolStripMenuItem = new ToolStripMenuItem();
@@ -45,9 +48,7 @@
             resolution3Label = new Label();
             availableResolutionsCB3 = new ComboBox();
             applyRes3Button = new Button();
-            applyRes4Button = new Button();
-            resolution4Label = new Label();
-            availableResolutionsCB4 = new ComboBox();
+            clearRegistryToolStripMenuItem = new ToolStripMenuItem();
             contextMenuStrip.SuspendLayout();
             SuspendLayout();
             // 
@@ -78,7 +79,7 @@
             applyButton.FlatAppearance.BorderSize = 0;
             applyButton.FlatStyle = FlatStyle.Flat;
             applyButton.Font = new Font("Segoe UI Black", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            applyButton.Location = new Point(125, 154);
+            applyButton.Location = new Point(125, 124);
             applyButton.Name = "applyButton";
             applyButton.Size = new Size(80, 35);
             applyButton.TabIndex = 2;
@@ -121,29 +122,50 @@
             contextMenuStrip.BackColor = Color.FromArgb(36, 38, 49);
             contextMenuStrip.BackgroundImageLayout = ImageLayout.None;
             contextMenuStrip.ForeColor = Color.White;
-            contextMenuStrip.Items.AddRange(new ToolStripItem[] { runOnStartupToolStripMenuItem, showToolStripMenuItem, exitToolStripMenuItem });
+            contextMenuStrip.Items.AddRange(new ToolStripItem[] { resolution1ToolStripMenuItem, resolution2ToolStripMenuItem, resolution3ToolStripMenuItem, runOnStartupToolStripMenuItem, clearRegistryToolStripMenuItem, showToolStripMenuItem, exitToolStripMenuItem });
             contextMenuStrip.Name = "contextMenuStrip";
             contextMenuStrip.RenderMode = ToolStripRenderMode.Professional;
-            contextMenuStrip.Size = new Size(153, 70);
+            contextMenuStrip.Size = new Size(181, 180);
+            // 
+            // resolution1ToolStripMenuItem
+            // 
+            resolution1ToolStripMenuItem.Name = "resolution1ToolStripMenuItem";
+            resolution1ToolStripMenuItem.Size = new Size(180, 22);
+            resolution1ToolStripMenuItem.Text = "Resolution 1";
+            resolution1ToolStripMenuItem.Click += applyRes1Button_Click;
+            // 
+            // resolution2ToolStripMenuItem
+            // 
+            resolution2ToolStripMenuItem.Name = "resolution2ToolStripMenuItem";
+            resolution2ToolStripMenuItem.Size = new Size(180, 22);
+            resolution2ToolStripMenuItem.Text = "Resolution 2";
+            resolution2ToolStripMenuItem.Click += applyRes2Button_Click;
+            // 
+            // resolution3ToolStripMenuItem
+            // 
+            resolution3ToolStripMenuItem.Name = "resolution3ToolStripMenuItem";
+            resolution3ToolStripMenuItem.Size = new Size(180, 22);
+            resolution3ToolStripMenuItem.Text = "Resolution 3";
+            resolution3ToolStripMenuItem.Click += applyRes3Button_Click;
             // 
             // runOnStartupToolStripMenuItem
             // 
             runOnStartupToolStripMenuItem.Name = "runOnStartupToolStripMenuItem";
-            runOnStartupToolStripMenuItem.Size = new Size(152, 22);
+            runOnStartupToolStripMenuItem.Size = new Size(180, 22);
             runOnStartupToolStripMenuItem.Text = "Run on startup";
             runOnStartupToolStripMenuItem.Click += runOnStartupToolStripMenuItem_Click;
             // 
             // showToolStripMenuItem
             // 
             showToolStripMenuItem.Name = "showToolStripMenuItem";
-            showToolStripMenuItem.Size = new Size(152, 22);
+            showToolStripMenuItem.Size = new Size(180, 22);
             showToolStripMenuItem.Text = "Show";
             showToolStripMenuItem.Click += showToolStripMenuItem_Click;
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(152, 22);
+            exitToolStripMenuItem.Size = new Size(180, 22);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
@@ -208,50 +230,19 @@
             applyRes3Button.UseVisualStyleBackColor = false;
             applyRes3Button.Click += applyRes3Button_Click;
             // 
-            // applyRes4Button
+            // clearRegistryToolStripMenuItem
             // 
-            applyRes4Button.BackColor = Color.FromArgb(52, 55, 69);
-            applyRes4Button.FlatAppearance.BorderSize = 0;
-            applyRes4Button.FlatStyle = FlatStyle.Flat;
-            applyRes4Button.Location = new Point(219, 117);
-            applyRes4Button.Name = "applyRes4Button";
-            applyRes4Button.Size = new Size(90, 24);
-            applyRes4Button.TabIndex = 10;
-            applyRes4Button.Text = "Ctrl+Shift+4";
-            applyRes4Button.UseVisualStyleBackColor = false;
-            applyRes4Button.Click += applyRes4Button_Click;
-            // 
-            // resolution4Label
-            // 
-            resolution4Label.AutoSize = true;
-            resolution4Label.Location = new Point(12, 123);
-            resolution4Label.Name = "resolution4Label";
-            resolution4Label.Size = new Size(75, 15);
-            resolution4Label.TabIndex = 11;
-            resolution4Label.Text = "Resolution 4:";
-            // 
-            // availableResolutionsCB4
-            // 
-            availableResolutionsCB4.BackColor = Color.FromArgb(52, 54, 69);
-            availableResolutionsCB4.DropDownStyle = ComboBoxStyle.DropDownList;
-            availableResolutionsCB4.DropDownWidth = 120;
-            availableResolutionsCB4.FlatStyle = FlatStyle.Flat;
-            availableResolutionsCB4.ForeColor = Color.White;
-            availableResolutionsCB4.FormattingEnabled = true;
-            availableResolutionsCB4.Location = new Point(93, 117);
-            availableResolutionsCB4.Name = "availableResolutionsCB4";
-            availableResolutionsCB4.Size = new Size(121, 23);
-            availableResolutionsCB4.TabIndex = 12;
+            clearRegistryToolStripMenuItem.Name = "clearRegistryToolStripMenuItem";
+            clearRegistryToolStripMenuItem.Size = new Size(180, 22);
+            clearRegistryToolStripMenuItem.Text = "Clear Registry";
+            clearRegistryToolStripMenuItem.Click += clearRegistryToolStripMenuItem_Click;
             // 
             // ResolutionChanger
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(15, 18, 21);
-            ClientSize = new Size(324, 201);
-            Controls.Add(availableResolutionsCB4);
-            Controls.Add(resolution4Label);
-            Controls.Add(applyRes4Button);
+            ClientSize = new Size(324, 171);
             Controls.Add(applyRes3Button);
             Controls.Add(availableResolutionsCB3);
             Controls.Add(resolution3Label);
@@ -293,8 +284,9 @@
         private Label resolution3Label;
         private ComboBox availableResolutionsCB3;
         private Button applyRes3Button;
-        private Button applyRes4Button;
-        private Label resolution4Label;
-        private ComboBox availableResolutionsCB4;
+        private ToolStripMenuItem resolution1ToolStripMenuItem;
+        private ToolStripMenuItem resolution2ToolStripMenuItem;
+        private ToolStripMenuItem resolution3ToolStripMenuItem;
+        private ToolStripMenuItem clearRegistryToolStripMenuItem;
     }
 }
