@@ -1,6 +1,6 @@
 # Resolution Changer
 
-![App Screenshot](resources/res_changer_screen.png)
+![App Screenshot](resources/screenshots/res_changer_screen.png)
 
 Simple app to change your resolution.
 
@@ -8,7 +8,7 @@ Also saves the resolutions so that apps such as CS2 won't switch the resolution 
 
 This app shows all available resolutions with the highest available refresh rate.
 
-![Context Menu Screenshot](resources/res_changer_context_menu.png)
+![Context Menu Screenshot](resources/screenshots/res_changer_context_menu.png)
 
 
 ## Installation
