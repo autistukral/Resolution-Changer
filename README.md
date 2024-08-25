@@ -8,6 +8,8 @@ Also saves the resolutions so that apps such as CS2 won't switch the resolution 
 
 This app shows all available resolutions with the highest available refresh rate.
 
+## System Tray
+
 ![Context Menu Screenshot](resources/screenshots/res_changer_context_menu.png)
 
 
