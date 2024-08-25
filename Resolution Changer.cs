@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Microsoft.Win32;
@@ -13,6 +15,10 @@ namespace Resolution_Changer
         private const string RegistryValueName2 = "Resolution2";
         private const string RegistryValueName3 = "Resolution3";
         private const string appName = "Autistukral Resolution Changer";
+        string fileVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
+
+        int primWidth = Screen.PrimaryScreen.Bounds.Width;
+        int primHeight = Screen.PrimaryScreen.Bounds.Height;
 
         private System.Windows.Forms.Timer updateTimer;
 
@@ -248,9 +254,13 @@ namespace Resolution_Changer
             }
 
             //Optionally select the current resolution
-            availableResolutionsCB.SelectedIndex = availableResolutionsCB.Items.IndexOf($"{Screen.PrimaryScreen.Bounds.Width}x{Screen.PrimaryScreen.Bounds.Height}@{dm.dmDisplayFrequency}");
-            availableResolutionsCB2.SelectedIndex = availableResolutionsCB2.Items.IndexOf($"{Screen.PrimaryScreen.Bounds.Width}x{Screen.PrimaryScreen.Bounds.Height}@{dm.dmDisplayFrequency}");
-            availableResolutionsCB3.SelectedIndex = availableResolutionsCB3.Items.IndexOf($"{Screen.PrimaryScreen.Bounds.Width}x{Screen.PrimaryScreen.Bounds.Height}@{dm.dmDisplayFrequency}");
+            availableResolutionsCB.SelectedIndex = availableResolutionsCB.Items.IndexOf($"{primWidth}x{primHeight}@{dm.dmDisplayFrequency}");
+            availableResolutionsCB2.SelectedIndex = availableResolutionsCB2.Items.IndexOf($"{primWidth}x{primHeight}@{dm.dmDisplayFrequency}");
+            availableResolutionsCB3.SelectedIndex = availableResolutionsCB3.Items.IndexOf($"{primWidth}x{primHeight}@{dm.dmDisplayFrequency}");
+
+            resolution1ToolStripMenuItem.Text = availableResolutionsCB.SelectedItem.ToString();
+            resolution2ToolStripMenuItem.Text = availableResolutionsCB2.SelectedItem.ToString();
+            resolution3ToolStripMenuItem.Text = availableResolutionsCB3.SelectedItem.ToString();
         }
 
         [DllImport("user32.dll")]
@@ -263,7 +273,6 @@ namespace Resolution_Changer
         private const int HOTKEY_ID = 9000; // Arbitrary ID for the hotkey
         private const int HOTKEY_ID2 = 9001;
         private const int HOTKEY_ID3 = 9002;
-        private const int HOTKEY_ID4 = 9003;
         private const uint MOD_CONTROL = 0x0002; // Control key modifier
         private const uint MOD_SHIFT = 0x0004; // Shift key modifier
         private const uint VK_1 = 0x31; // '1' key virtual key code
@@ -351,6 +360,10 @@ namespace Resolution_Changer
             dm.dmFields = (uint)(DM.PelsWidth | DM.PelsHeight);
 
             DISP_CHANGE result = ChangeDisplaySettingsEx(null, ref dm, IntPtr.Zero, CDS_UPDATEREGISTRY | CDS_GLOBAL, IntPtr.Zero);
+
+            resolution1ToolStripMenuItem.Checked = true;
+            resolution2ToolStripMenuItem.Checked = false;
+            resolution3ToolStripMenuItem.Checked = false;
         }
 
         private void ChangeResolution2()
@@ -369,6 +382,10 @@ namespace Resolution_Changer
             dm.dmFields = (uint)(DM.PelsWidth | DM.PelsHeight);
 
             DISP_CHANGE result = ChangeDisplaySettingsEx(null, ref dm, IntPtr.Zero, CDS_UPDATEREGISTRY | CDS_GLOBAL, IntPtr.Zero);
+
+            resolution1ToolStripMenuItem.Checked = false;
+            resolution2ToolStripMenuItem.Checked = true;
+            resolution3ToolStripMenuItem.Checked = false;
         }
 
         private void ChangeResolution3()
@@ -387,6 +404,60 @@ namespace Resolution_Changer
             dm.dmFields = (uint)(DM.PelsWidth | DM.PelsHeight);
 
             DISP_CHANGE result = ChangeDisplaySettingsEx(null, ref dm, IntPtr.Zero, CDS_UPDATEREGISTRY | CDS_GLOBAL, IntPtr.Zero);
+
+            resolution1ToolStripMenuItem.Checked = false;
+            resolution2ToolStripMenuItem.Checked = false;
+            resolution3ToolStripMenuItem.Checked = true;
+        }
+
+        private void CheckPrimResOnLoad()
+        {
+            string primRes = $"{primWidth}x{primHeight}";
+
+            string selectedResolution1 = availableResolutionsCB.SelectedItem.ToString();
+            string[] dimensions1 = selectedResolution1.Split('x', '@');
+            int width = int.Parse(dimensions1[0]);
+            int height = int.Parse(dimensions1[1]);
+            int refresh = int.Parse(dimensions1[2]);
+            string res1 = $"{width}x{height}";
+
+            string selectedResolution2 = availableResolutionsCB2.SelectedItem.ToString();
+            string[] dimensions2 = selectedResolution2.Split('x', '@');
+            int width2 = int.Parse(dimensions2[0]);
+            int height2 = int.Parse(dimensions2[1]);
+            int refresh2 = int.Parse(dimensions2[2]);
+            string res2 = $"{width2}x{height2}";
+
+            string selectedResolution3 = availableResolutionsCB3.SelectedItem.ToString();
+            string[] dimensions3 = selectedResolution3.Split('x', '@');
+            int width3 = int.Parse(dimensions3[0]);
+            int height3 = int.Parse(dimensions3[1]);
+            int refresh3 = int.Parse(dimensions3[2]);
+            string res3 = $"{width3}x{height3}";
+
+            switch (res1, res2, res3)
+            {
+                case var _ when res1 == primRes:
+                    resolution1ToolStripMenuItem.Checked = true;
+                    resolution2ToolStripMenuItem.Checked = false;
+                    resolution3ToolStripMenuItem.Checked = false;
+                    break;
+                case var _ when res2 == primRes:
+                    resolution1ToolStripMenuItem.Checked = false;
+                    resolution2ToolStripMenuItem.Checked = true;
+                    resolution3ToolStripMenuItem.Checked = false;
+                    break;
+                case var _ when res3 == primRes:
+                    resolution1ToolStripMenuItem.Checked = false;
+                    resolution2ToolStripMenuItem.Checked = false;
+                    resolution3ToolStripMenuItem.Checked = true;
+                    break;
+                default:
+                    resolution1ToolStripMenuItem.Checked = false;
+                    resolution2ToolStripMenuItem.Checked = false;
+                    resolution3ToolStripMenuItem.Checked = false;
+                    break;
+            }
         }
 
         public ResolutionChanger()
@@ -428,6 +499,9 @@ namespace Resolution_Changer
 
             FillCBWithRes1();
             LoadResolutionsFromRegistry();
+            CheckPrimResOnLoad();
+
+            notifyIcon.Text = $"Resolution Changer {fileVersion}";
         }
 
         private void ShowForm()

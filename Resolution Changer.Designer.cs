@@ -41,6 +41,7 @@
             resolution2ToolStripMenuItem = new ToolStripMenuItem();
             resolution3ToolStripMenuItem = new ToolStripMenuItem();
             runOnStartupToolStripMenuItem = new ToolStripMenuItem();
+            clearRegistryToolStripMenuItem = new ToolStripMenuItem();
             showToolStripMenuItem = new ToolStripMenuItem();
             exitToolStripMenuItem = new ToolStripMenuItem();
             applyRes1Button = new Button();
@@ -48,7 +49,6 @@
             resolution3Label = new Label();
             availableResolutionsCB3 = new ComboBox();
             applyRes3Button = new Button();
-            clearRegistryToolStripMenuItem = new ToolStripMenuItem();
             contextMenuStrip.SuspendLayout();
             SuspendLayout();
             // 
@@ -125,47 +125,54 @@
             contextMenuStrip.Items.AddRange(new ToolStripItem[] { resolution1ToolStripMenuItem, resolution2ToolStripMenuItem, resolution3ToolStripMenuItem, runOnStartupToolStripMenuItem, clearRegistryToolStripMenuItem, showToolStripMenuItem, exitToolStripMenuItem });
             contextMenuStrip.Name = "contextMenuStrip";
             contextMenuStrip.RenderMode = ToolStripRenderMode.Professional;
-            contextMenuStrip.Size = new Size(181, 180);
+            contextMenuStrip.Size = new Size(153, 158);
             // 
             // resolution1ToolStripMenuItem
             // 
             resolution1ToolStripMenuItem.Name = "resolution1ToolStripMenuItem";
-            resolution1ToolStripMenuItem.Size = new Size(180, 22);
+            resolution1ToolStripMenuItem.Size = new Size(152, 22);
             resolution1ToolStripMenuItem.Text = "Resolution 1";
             resolution1ToolStripMenuItem.Click += applyRes1Button_Click;
             // 
             // resolution2ToolStripMenuItem
             // 
             resolution2ToolStripMenuItem.Name = "resolution2ToolStripMenuItem";
-            resolution2ToolStripMenuItem.Size = new Size(180, 22);
+            resolution2ToolStripMenuItem.Size = new Size(152, 22);
             resolution2ToolStripMenuItem.Text = "Resolution 2";
             resolution2ToolStripMenuItem.Click += applyRes2Button_Click;
             // 
             // resolution3ToolStripMenuItem
             // 
             resolution3ToolStripMenuItem.Name = "resolution3ToolStripMenuItem";
-            resolution3ToolStripMenuItem.Size = new Size(180, 22);
+            resolution3ToolStripMenuItem.Size = new Size(152, 22);
             resolution3ToolStripMenuItem.Text = "Resolution 3";
             resolution3ToolStripMenuItem.Click += applyRes3Button_Click;
             // 
             // runOnStartupToolStripMenuItem
             // 
             runOnStartupToolStripMenuItem.Name = "runOnStartupToolStripMenuItem";
-            runOnStartupToolStripMenuItem.Size = new Size(180, 22);
+            runOnStartupToolStripMenuItem.Size = new Size(152, 22);
             runOnStartupToolStripMenuItem.Text = "Run on startup";
             runOnStartupToolStripMenuItem.Click += runOnStartupToolStripMenuItem_Click;
+            // 
+            // clearRegistryToolStripMenuItem
+            // 
+            clearRegistryToolStripMenuItem.Name = "clearRegistryToolStripMenuItem";
+            clearRegistryToolStripMenuItem.Size = new Size(152, 22);
+            clearRegistryToolStripMenuItem.Text = "Clear Registry";
+            clearRegistryToolStripMenuItem.Click += clearRegistryToolStripMenuItem_Click;
             // 
             // showToolStripMenuItem
             // 
             showToolStripMenuItem.Name = "showToolStripMenuItem";
-            showToolStripMenuItem.Size = new Size(180, 22);
+            showToolStripMenuItem.Size = new Size(152, 22);
             showToolStripMenuItem.Text = "Show";
             showToolStripMenuItem.Click += showToolStripMenuItem_Click;
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(180, 22);
+            exitToolStripMenuItem.Size = new Size(152, 22);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
@@ -214,7 +221,7 @@
             availableResolutionsCB3.FormattingEnabled = true;
             availableResolutionsCB3.Location = new Point(93, 83);
             availableResolutionsCB3.Name = "availableResolutionsCB3";
-            availableResolutionsCB3.Size = new Size(121, 23);
+            availableResolutionsCB3.Size = new Size(120, 23);
             availableResolutionsCB3.TabIndex = 8;
             // 
             // applyRes3Button
@@ -222,20 +229,13 @@
             applyRes3Button.BackColor = Color.FromArgb(52, 55, 69);
             applyRes3Button.FlatAppearance.BorderSize = 0;
             applyRes3Button.FlatStyle = FlatStyle.Flat;
-            applyRes3Button.Location = new Point(220, 83);
+            applyRes3Button.Location = new Point(219, 83);
             applyRes3Button.Name = "applyRes3Button";
             applyRes3Button.Size = new Size(90, 24);
             applyRes3Button.TabIndex = 9;
             applyRes3Button.Text = "Ctrl+Shift+3";
             applyRes3Button.UseVisualStyleBackColor = false;
             applyRes3Button.Click += applyRes3Button_Click;
-            // 
-            // clearRegistryToolStripMenuItem
-            // 
-            clearRegistryToolStripMenuItem.Name = "clearRegistryToolStripMenuItem";
-            clearRegistryToolStripMenuItem.Size = new Size(180, 22);
-            clearRegistryToolStripMenuItem.Text = "Clear Registry";
-            clearRegistryToolStripMenuItem.Click += clearRegistryToolStripMenuItem_Click;
             // 
             // ResolutionChanger
             // 
