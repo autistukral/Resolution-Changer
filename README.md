@@ -4,7 +4,7 @@
 
 Simple app to change your resolution.
 
-Also saves the resolutions so that apps such as CS2 won't switch the resolution back to the previous one after alt-tabing.
+Also saves the resolutions so that apps such as CS2 won't switch the resolution back to the previous one after alt-tabbing.
 
 This app shows all available resolutions with the highest available refresh rate.
 
