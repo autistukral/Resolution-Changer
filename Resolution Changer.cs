@@ -1,10 +1,17 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Threading;
 using Microsoft.Win32;
+using System.Text.Json;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using static Resolution_Changer.ResolutionChanger;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Resolution_Changer
 {
@@ -14,13 +21,30 @@ namespace Resolution_Changer
         private const string RegistryValueName1 = "Resolution1";
         private const string RegistryValueName2 = "Resolution2";
         private const string RegistryValueName3 = "Resolution3";
+        private const string RegistryValueApps = "AppsList";
         private const string appName = "Autistukral Resolution Changer";
         string fileVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
 
-        int primWidth = Screen.PrimaryScreen.Bounds.Width;
-        int primHeight = Screen.PrimaryScreen.Bounds.Height;
+        int primWidth = Screen.PrimaryScreen.Bounds.Width; // Width of primary monitor
+        int primHeight = Screen.PrimaryScreen.Bounds.Height; // Height of primary monitor
+
+        private List<string> targetProcesses; // List of process names to monitor
+        private HashSet<string> activeProcesses; // Tracks currently running target processes
 
         private System.Windows.Forms.Timer updateTimer;
+        private string GetIconSaveDirectory()
+        {
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string appFolder = Path.Combine(localAppData, "AutistukralResolutionChanger");
+
+            // ensure the directory exists
+            if (!Directory.Exists(appFolder))
+            {
+                Directory.CreateDirectory(appFolder);
+            }
+
+            return appFolder;
+        }
 
         // Code to make the application top bar colored by the windows
         [DllImport("DwmApi")]
@@ -465,6 +489,7 @@ namespace Resolution_Changer
             InitializeComponent();
 
             contextMenuStrip.Renderer = new ToolStripProfessionalRenderer(new MenuColorTable());
+            contextMenuStripAddedList.Renderer = new ToolStripProfessionalRenderer(new MenuColorTable());
         }
 
         protected override void OnLoad(EventArgs e)
@@ -488,7 +513,7 @@ namespace Resolution_Changer
             runOnStartupToolStripMenuItem.Checked = IsRunAtStartup();
             notifyIcon.Visible = true;
 
-            if (IsRunAtStartup() != null)
+            if (IsRunAtStartup() != false)
             {
                 this.WindowState = FormWindowState.Minimized;
                 this.Hide();
@@ -500,8 +525,13 @@ namespace Resolution_Changer
             FillCBWithRes1();
             LoadResolutionsFromRegistry();
             CheckPrimResOnLoad();
+            LoadAddedProcesses();
+
+            activeProcesses = new HashSet<string>();
 
             notifyIcon.Text = $"Resolution Changer {fileVersion}";
+
+            StartProcessMonitoring();
         }
 
         private void ShowForm()
@@ -530,6 +560,138 @@ namespace Resolution_Changer
             else if (this.WindowState == FormWindowState.Normal || this.WindowState == FormWindowState.Maximized)
             {
                 ShowForm();
+            }
+        }
+
+        private void StartProcessMonitoring()
+        {
+            // Start a background thread to monitor for target processes
+            Thread processMonitorThread = new Thread(() =>
+            {
+                while (true)
+                {
+                    targetProcesses = ReadListFromRegistry();
+                    MonitorProcesses();
+                    Thread.Sleep(2000); // Check every X miliseconds
+                }
+            });
+
+            processMonitorThread.IsBackground = true;
+            processMonitorThread.Start();
+        }
+
+        private void MonitorProcesses()
+        {
+            // Get the current running processes
+            var runningProcesses = Process.GetProcesses()
+                .Select(p => p.ProcessName)
+                .ToList();
+
+            // Find all matching processes with their tags
+            var matchedProcesses = ReadListFromRegistry()
+                .Select(tp =>
+                {
+                    var parts = tp.Split('@', '#');
+                    return 
+                    ( 
+                        ProcName: parts[0], 
+                        ProcRes: parts[1], 
+                        ProcPrio: int.Parse(parts[2]) 
+                    );
+                })
+                .Where(tp => runningProcesses.Contains(tp.ProcName, StringComparer.OrdinalIgnoreCase))
+                .ToList();
+
+            // Check for target processes that have been closed
+            foreach (string processName in activeProcesses.ToList()) // Use ToList to avoid modifying collection during iteration
+            {
+                if (!runningProcesses.Contains(processName, StringComparer.OrdinalIgnoreCase))
+                {
+                    activeProcesses.Clear();
+                    OnTargetProcessClosed(processName);
+
+                    // re-evaluate priority
+                    PromoteHighestPriority(matchedProcesses);
+                }
+            }
+
+            PromoteHighestPriority(matchedProcesses);
+        }
+
+        private void PromoteHighestPriority(List<(string ProcName, string ProcRes, int ProcPrio)> matchedProcesses)
+        {
+            if (matchedProcesses.Any())
+            {
+                // find process with lowest prio value
+                var highestPriority = matchedProcesses
+                    .OrderBy(tp => tp.ProcPrio)
+                    .First();
+
+                // process if not already active
+                if (!activeProcesses.Contains(highestPriority.ProcName))
+                {
+                    activeProcesses.Add(highestPriority.ProcName);
+                    OnTargetProcessDetected(highestPriority.ProcRes);
+                }
+            }
+        }
+
+        private void OnTargetProcessDetected(string processName)
+        {
+            int monitorWidth = Screen.PrimaryScreen.Bounds.Width;
+            int monitorHeight = Screen.PrimaryScreen.Bounds.Height;
+
+            if (processName == "1")
+            {
+                string selectedResolution = availableResolutionsCB.SelectedItem.ToString();
+                string[] dimensions = selectedResolution.Split('x', '@');
+                int width = int.Parse(dimensions[0]);
+                int height = int.Parse(dimensions[1]);
+
+                if (monitorWidth != width || monitorHeight != height)
+                {
+                    ChangeResolution1();
+                }
+            }
+            else if (processName == "2")
+            {
+                string selectedResolution = availableResolutionsCB2.SelectedItem.ToString();
+                string[] dimensions = selectedResolution.Split('x', '@');
+                int width = int.Parse(dimensions[0]);
+                int height = int.Parse(dimensions[1]);
+
+                if (monitorWidth != width || monitorHeight != height)
+                {
+                    ChangeResolution2();
+                }
+            }
+            else if (processName == "3")
+            {
+                string selectedResolution = availableResolutionsCB3.SelectedItem.ToString();
+                string[] dimensions = selectedResolution.Split('x', '@');
+                int width = int.Parse(dimensions[0]);
+                int height = int.Parse(dimensions[1]);
+
+                if (monitorWidth != width || monitorHeight != height)
+                {
+                    ChangeResolution3();
+                }
+            }
+        }
+
+        private void OnTargetProcessClosed(string processName)
+        {
+            int monitorWidth = Screen.PrimaryScreen.Bounds.Width;
+            int monitorHeight = Screen.PrimaryScreen.Bounds.Height;
+
+            string selectedResolution = availableResolutionsCB.SelectedItem.ToString();
+            string[] dimensions = selectedResolution.Split('x', '@');
+            int width = int.Parse(dimensions[0]);
+            int height = int.Parse(dimensions[1]);
+
+            if (monitorWidth != width || monitorHeight != height)
+            {
+                ChangeResolution1();
             }
         }
 
@@ -627,7 +789,7 @@ namespace Resolution_Changer
         public void DeleteResolutionRegistry()
         {
             RegistryKey baseKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE", true);
-            
+
             try
             {
                 baseKey.DeleteSubKeyTree("AutistukralResolutionChanger");
@@ -647,6 +809,218 @@ namespace Resolution_Changer
             {
                 runOnStartupToolStripMenuItem.Checked = false;
             }
+        }
+
+        private void LoadAddedProcesses()
+        {
+            try
+            {
+                // Read the list of processes from the registry
+                List<string> addedProcesses = ReadListFromRegistry();
+
+                ImageList imageListAddedProcs = LoadIcons();
+
+                // Set the image size to a larger resolution (e.g., 32x32 pixels)
+                imageListAddedProcs.ImageSize = new Size(32, 32);
+
+                listView_addedProcesses.SmallImageList = imageListAddedProcs;
+                listView_addedProcesses.LargeImageList = imageListAddedProcs;
+                listView_addedProcesses.StateImageList = imageListAddedProcs;
+
+                // Clear the ListView
+                listView_addedProcesses.Items.Clear();
+
+                // Iterate over the processes
+                foreach (string process in addedProcesses)
+                {
+                    var listViewItem = new ListViewItem();
+
+                    // Split the process name and any tags (e.g., "process@1#1")
+                    string[] parts = process.Split('@', '#');
+                    string processName = parts[0];
+                    string processRes = parts[1];
+                    string processPrio = parts[2];
+
+                    // Set the text of the ListViewItem
+                    listViewItem.Text = process;
+
+                    // Check if the ImageList contains the process icon
+                    if (imageListAddedProcs.Images.ContainsKey(processName))
+                    {
+                        // Set the ImageKey to the process name (make sure it matches the key in the ImageList)
+                        listViewItem.ImageKey = processName;
+                    }
+
+                    // Add the item to the ListView
+                    listView_addedProcesses.Items.Add(listViewItem);
+                }
+            }
+            catch (Exception ex) { MessageBox.Show($"Error loading processes: {ex.Message}"); }
+        }
+
+        private List<string> ReadListFromRegistry()
+        {
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryKeyPath))
+            {
+                if (key != null)
+                {
+                    string serializedList = key.GetValue(RegistryValueApps)?.ToString();
+                    if (!string.IsNullOrEmpty(serializedList))
+                    {
+                        return JsonSerializer.Deserialize<List<string>>(serializedList);
+                    }
+                }
+            }
+
+            return new List<string>(); // return empty if no value found
+        }
+
+        private void btn_addProcess_Click(object sender, EventArgs e)
+        {
+            var processExplorerForm = new ProcessExplorer();
+            processExplorerForm.ShowDialog();
+        }
+
+        private void btn_addProcessWinExp_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void SaveListToRegistry(List<string> processList)
+        {
+            string serializedList = JsonSerializer.Serialize(processList);
+
+            using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegistryKeyPath))
+            {
+                key?.SetValue(RegistryValueApps, serializedList);
+            }
+        }
+
+        private void AssignResolutionToProcess(int res)
+        {
+            if (listView_addedProcesses.SelectedItems.Count > 0)
+            {
+                // get the selected item
+                string selectedProcess = listView_addedProcesses.SelectedItems[0].Text;
+
+                // append option to item and update registry
+                string[] selectedSplit = selectedProcess.Split('@', '#');
+                string valueToSave = $"{selectedSplit[0]}@{res}#{selectedSplit[2]}";
+
+                // update registry
+                List<string> updatedProcesses = ReadListFromRegistry();
+                updatedProcesses.Remove(selectedProcess);
+                updatedProcesses.Add(valueToSave);
+                SaveListToRegistry(updatedProcesses);
+                LoadAddedProcesses();
+            }
+        }
+
+        private void AssignPriority(int prio)
+        {
+            if (listView_addedProcesses.SelectedItems.Count > 0)
+            {
+                // get the selected item
+                string selectedProcess = listView_addedProcesses.SelectedItems[0].Text;
+
+                // append option to item and update registry
+                string[] selectedSplit = selectedProcess.Split('#');
+                string valueToSave = $"{selectedSplit[0]}#{prio}";
+                // update registry
+                List<string> updatedProcesses = ReadListFromRegistry();
+                updatedProcesses.Remove(selectedProcess);
+                updatedProcesses.Add(valueToSave);
+                SaveListToRegistry(updatedProcesses);
+                LoadAddedProcesses();
+            }
+        }
+
+        private ImageList LoadIcons()
+        {
+            string saveDirectory = GetIconSaveDirectory();
+            var imageList = new ImageList();
+
+            try
+            {
+                // Get all image files in the directory
+                string[] imageFiles = Directory.GetFiles(saveDirectory, "*.png");
+
+                // Iterate over each image file in the folder
+                foreach (var filePath in imageFiles)
+                {
+                    // Get the file name without the extension to use as the key
+                    string fileName = Path.GetFileNameWithoutExtension(filePath);
+
+                    // Check if the file exists and load the image
+                    if (File.Exists(filePath))
+                    {
+                        imageList.Images.Add(fileName, Image.FromFile(filePath));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return imageList;
+        }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (listView_addedProcesses.SelectedItems.Count > 0)
+            {
+                // get the selected item
+                string selectedProcess = listView_addedProcesses.SelectedItems[0].Text;
+
+                // remove it from the ListView
+                listView_addedProcesses.Items.Remove(listView_addedProcesses.SelectedItems[0]);
+
+                // update registry
+                List<string> updatedProcesses = ReadListFromRegistry();
+                updatedProcesses.Remove(selectedProcess);
+                SaveListToRegistry(updatedProcesses);
+            }
+        }
+
+        private void resolution1ToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            AssignResolutionToProcess(1);
+        }
+
+        private void resolution2ToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            AssignResolutionToProcess(2);
+        }
+
+        private void resolution3ToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            AssignResolutionToProcess(3);
+        }
+
+        private void reloadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LoadAddedProcesses();
+        }
+
+        private void priority1ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AssignPriority(1);
+        }
+
+        private void priority1ToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            AssignPriority(2);
+        }
+
+        private void priority3ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AssignPriority(3);
+        }
+
+        private void priority4ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AssignPriority(4);
         }
     }
 }

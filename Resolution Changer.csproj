@@ -7,13 +7,29 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>resources\icon.ico</ApplicationIcon>
+    <ApplicationIcon>resources\icon-x128.ico</ApplicationIcon>
 	<Company>autistukral</Company>
-	<FileVersion>1.6.1.4</FileVersion>
+	<FileVersion>2.0.1.0</FileVersion>
+	<AssemblyName>ResolutionChanger</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="resources\icon.ico" />
+    <Content Include="resources\icon-x128.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
