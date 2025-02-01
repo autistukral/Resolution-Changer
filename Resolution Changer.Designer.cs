@@ -62,6 +62,8 @@
             priority3ToolStripMenuItem = new ToolStripMenuItem();
             priority4ToolStripMenuItem = new ToolStripMenuItem();
             imageListAddedProcs = new ImageList(components);
+            label_isAdmin = new Label();
+            toolTip_admin = new ToolTip(components);
             contextMenuStrip.SuspendLayout();
             contextMenuStripAddedList.SuspendLayout();
             SuspendLayout();
@@ -367,13 +369,33 @@
             imageListAddedProcs.ImageSize = new Size(32, 32);
             imageListAddedProcs.TransparentColor = Color.Transparent;
             // 
+            // label_isAdmin
+            // 
+            label_isAdmin.AutoSize = true;
+            label_isAdmin.Location = new Point(160, 239);
+            label_isAdmin.Name = "label_isAdmin";
+            label_isAdmin.Size = new Size(51, 15);
+            label_isAdmin.TabIndex = 13;
+            label_isAdmin.Text = "isAdmin";
+            label_isAdmin.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // toolTip_admin
+            // 
+            toolTip_admin.AutomaticDelay = 100;
+            toolTip_admin.AutoPopDelay = 5000;
+            toolTip_admin.BackColor = Color.FromArgb(52, 55, 69);
+            toolTip_admin.ForeColor = Color.White;
+            toolTip_admin.InitialDelay = 100;
+            toolTip_admin.ReshowDelay = 20;
+            // 
             // ResolutionChanger
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(15, 18, 21);
             BackgroundImageLayout = ImageLayout.Center;
-            ClientSize = new Size(398, 241);
+            ClientSize = new Size(398, 261);
+            Controls.Add(label_isAdmin);
             Controls.Add(listView_addedProcesses);
             Controls.Add(btn_addProcess);
             Controls.Add(applyRes3Button);
@@ -395,6 +417,7 @@
             Text = "Resolution Changer";
             FormClosing += ResolutionChanger_FormClosing;
             Load += ResolutionChanger_Load;
+            Shown += ResolutionChanger_Shown;
             contextMenuStrip.ResumeLayout(false);
             contextMenuStripAddedList.ResumeLayout(false);
             ResumeLayout(false);
@@ -435,5 +458,7 @@
         private ToolStripMenuItem priority1ToolStripMenuItem1;
         private ToolStripMenuItem priority3ToolStripMenuItem;
         private ToolStripMenuItem priority4ToolStripMenuItem;
+        private Label label_isAdmin;
+        private ToolTip toolTip_admin;
     }
 }

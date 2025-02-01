@@ -9,12 +9,20 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>resources\icon-x128.ico</ApplicationIcon>
 	<Company>autistukral</Company>
-	<FileVersion>2.0.1.0</FileVersion>
+	<FileVersion>2.3.1.5</FileVersion>
 	<AssemblyName>ResolutionChanger</AssemblyName>
+	  <!-->ApplicationManifest>app.manifest</ApplicationManifest -->
+	<SignAssembly>True</SignAssembly>
+	<AssemblyOriginatorKeyFile>autistukral.snk</AssemblyOriginatorKeyFile>
+	<Copyright>Copyright © autistukral 2025</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
     <Content Include="resources\icon-x128.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="9.0.1" />
   </ItemGroup>
 
   <ItemGroup>

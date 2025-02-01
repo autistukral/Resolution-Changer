@@ -1,17 +1,9 @@
 using System;
-using System.Diagnostics;
 using System.Reflection;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
-using System.Threading;
 using Microsoft.Win32;
 using System.Text.Json;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using static Resolution_Changer.ResolutionChanger;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Management;
 
 namespace Resolution_Changer
 {
@@ -32,6 +24,7 @@ namespace Resolution_Changer
         private HashSet<string> activeProcesses; // Tracks currently running target processes
 
         private System.Windows.Forms.Timer updateTimer;
+
         private string GetIconSaveDirectory()
         {
             string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -490,6 +483,8 @@ namespace Resolution_Changer
 
             contextMenuStrip.Renderer = new ToolStripProfessionalRenderer(new MenuColorTable());
             contextMenuStripAddedList.Renderer = new ToolStripProfessionalRenderer(new MenuColorTable());
+
+            toolTip_admin.SetToolTip(label_isAdmin, "It is recommended to run as Admin when running the Process Explorer");
         }
 
         protected override void OnLoad(EventArgs e)
@@ -532,6 +527,23 @@ namespace Resolution_Changer
             notifyIcon.Text = $"Resolution Changer {fileVersion}";
 
             StartProcessMonitoring();
+
+        }
+
+        private void ResolutionChanger_Shown(object sender, EventArgs e)
+        {
+            if (Utils.IsRunAsAdmin())
+            {
+                label_isAdmin.Text = "Running as Admin";
+                label_isAdmin.ForeColor = Color.FromArgb(0, 200, 0);
+                label_isAdmin.Left = (400 - label_isAdmin.Width) / 2;
+            }
+            else
+            {
+                label_isAdmin.Text = "Not running as Admin";
+                label_isAdmin.ForeColor = Color.FromArgb(200, 0, 0);
+                label_isAdmin.Left = (400 - label_isAdmin.Width) / 2;
+            }
         }
 
         private void ShowForm()
@@ -563,6 +575,44 @@ namespace Resolution_Changer
             }
         }
 
+        public List<string> GetRunningProcesses()
+        {
+            var processNames = new List<string>();
+
+            try
+            {
+                var searcher = new ManagementObjectSearcher("SELECT Name FROM Win32_Process");
+
+                foreach (ManagementObject obj in searcher.Get())
+                {
+                    try
+                    {
+                        string nameFull = obj["Name"]?.ToString();
+
+                        if (!string.IsNullOrEmpty(nameFull))
+                        {
+                            // Remove the file extension (e.g., .exe)
+                            string name = Path.GetFileNameWithoutExtension(nameFull);
+                            if (!processNames.Contains(name))
+                            {
+                                processNames.Add(name);
+                            }
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"WMI query failed: {ex.Message}");
+            }
+
+            return processNames;
+        }
+
         private void StartProcessMonitoring()
         {
             // Start a background thread to monitor for target processes
@@ -582,24 +632,22 @@ namespace Resolution_Changer
 
         private void MonitorProcesses()
         {
-            // Get the current running processes
-            var runningProcesses = Process.GetProcesses()
-                .Select(p => p.ProcessName)
-                .ToList();
+            var runningProcesses = GetRunningProcesses();
 
             // Find all matching processes with their tags
             var matchedProcesses = ReadListFromRegistry()
                 .Select(tp =>
                 {
-                    var parts = tp.Split('@', '#');
-                    return 
-                    ( 
-                        ProcName: parts[0], 
-                        ProcRes: parts[1], 
-                        ProcPrio: int.Parse(parts[2]) 
+                    var parts = tp.Split(new[] { '@', '#' }, StringSplitOptions.RemoveEmptyEntries);
+                    return
+                    (
+                        ProcName: parts[0],
+                        ProcRes: parts[1],
+                        ProcPrio: int.Parse(parts[2])
                     );
                 })
-                .Where(tp => runningProcesses.Contains(tp.ProcName, StringComparer.OrdinalIgnoreCase))
+                .Where(tp => tp != default && runningProcesses
+                .Contains(tp.ProcName, StringComparer.OrdinalIgnoreCase))
                 .ToList();
 
             // Check for target processes that have been closed
@@ -633,6 +681,7 @@ namespace Resolution_Changer
                     activeProcesses.Add(highestPriority.ProcName);
                     OnTargetProcessDetected(highestPriority.ProcRes);
                 }
+                else { OnTargetProcessDetected(highestPriority.ProcRes); }
             }
         }
 
@@ -877,8 +926,8 @@ namespace Resolution_Changer
 
         private void btn_addProcess_Click(object sender, EventArgs e)
         {
-            var processExplorerForm = new ProcessExplorer();
-            processExplorerForm.ShowDialog();
+            ProcessExplorer processExplorerForm = new ProcessExplorer();
+            processExplorerForm.Show();
         }
 
         private void btn_addProcessWinExp_Click(object sender, EventArgs e)

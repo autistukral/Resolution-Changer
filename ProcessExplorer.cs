@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 using Microsoft.Win32;
-using System.Text.Json; // For JSON serialization/deserialization
-using System.Drawing;
+using System.Text.Json;
 using System.Drawing.Imaging;
-using System.IO;
 
 namespace Resolution_Changer
 {
@@ -15,6 +11,51 @@ namespace Resolution_Changer
     {
         private const string RegistryKeyPath = @"Software\AutistukralResolutionChanger";
         private const string RegistryValueApps = "AppsList";
+
+        private const int GCL_HICON = -14;
+        private const int GCL_HICONSM = -34;
+        private const uint SHGFI_ICON = 0x000000100;
+        private const uint SHGFI_LARGEICON = 0x000000000;
+
+        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
+        private static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes,
+        ref SHFILEINFO psfi, uint cbFileInfo, uint uFlags);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern int GetWindowThreadProcessId(IntPtr hWnd, out int processId);
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        public struct SHFILEINFO
+        {
+            public IntPtr hIcon;
+            public IntPtr iIcon;
+            public uint dwAttributes;
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+            public string szDisplayName;
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
+            public string szTypeName;
+        }
+
+        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+
+        // Code to make the application top bar colored by the windows
+        [DllImport("DwmApi")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, int[] attrValue, int attrSize);
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            if (DwmSetWindowAttribute(Handle, 19, new[] { 1 }, 4) != 0)
+                DwmSetWindowAttribute(Handle, 20, new[] { 1 }, 4);
+        }
 
         private string GetIconSaveDirectory()
         {
@@ -30,34 +71,27 @@ namespace Resolution_Changer
             return appFolder;
         }
 
-        // Code to make the application top bar colored by the windows
-        [DllImport("DwmApi")]
-        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, int[] attrValue, int attrSize);
-
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            if (DwmSetWindowAttribute(Handle, 19, new[] { 1 }, 4) != 0)
-                DwmSetWindowAttribute(Handle, 20, new[] { 1 }, 4);
-        }
-
         public List<string> ProcessesPaths = new List<string>();
 
         public ProcessExplorer()
         {
             InitializeComponent();
-            LoadProcesses();
+
+            LoadProcesses(listView_processExplorer, imageListProcesses);
         }
 
         private void ProcessExplorer_Load(object sender, EventArgs e)
         {
-            LoadProcesses();
+            LoadProcesses(listView_processExplorer, imageListProcesses);
         }
 
-        private Dictionary<string, Icon> LoadProcesses()
+        public Dictionary<string, Icon> LoadProcesses(ListView listView, ImageList imageList)
         {
             // Clear existing items
-            listView_processExplorer.Items.Clear();
-            imageListProcesses.Images.Clear();
+            //listView_processExplorer.Items.Clear();
+            listView.Items.Clear();
+            //imageListProcesses.Images.Clear();
+            imageList.Images.Clear();
 
             // Use a HashSet to track process names
             var processNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -65,49 +99,79 @@ namespace Resolution_Changer
             // Dictionary to store process icons
             var processIcons = new Dictionary<string, Icon>();
 
-            // get all processes
-            var processes = Process.GetProcesses();
-            foreach (var process in processes)
+            // Enumerate all processes
+            foreach (var process in Process.GetProcesses())
             {
                 try
                 {
-                    // Get the process's executable path
-                    var path = process.MainModule?.FileName;
+                    string processName = process.ProcessName;
+                    if (!processNames.Add(processName)) continue;
 
-                    if (!string.IsNullOrEmpty(path)
-                        && !path.StartsWith(@"C:\Windows", StringComparison.OrdinalIgnoreCase)
-                        && processNames.Add(process.ProcessName)) // Add returns false if the name already exists
-                    {
-                        // Get the process icon
-                        Icon icon = Icon.ExtractAssociatedIcon(path);
-                        if (icon != null)
-                        {
-                            // Add the icon to the ImageList
-                            imageListProcesses.Images.Add(process.ProcessName, icon);
-                            processIcons[process.ProcessName] = icon;
-                        }
+                    string exePath = null;
+                    try { exePath = process.MainModule?.FileName; } catch { }
 
-                        // Add process name and ID to the ListView
-                        var item = new ListViewItem(process.ProcessName);
-                        item.SubItems.Add(process.Id.ToString());
-                        item.Tag = process; // Store the process object for later use
+                    Icon icon = ExtractIconFromPath(exePath) ?? ExtractIconFromWindow(process);
 
+                    if (icon == null) icon = SystemIcons.Application;
 
-                        // set the icons
-                        item.ImageKey = process.ProcessName;
+                    imageList.Images.Add(processName, icon);
+                    processIcons[processName] = icon;
 
-                        // add the item to listview
-                        listView_processExplorer.Items.Add(item);
-                    }
+                    var item = new ListViewItem(processName) { ImageKey = processName };
+                    listView.Items.Add(item);
                 }
                 catch
                 {
-                    // ignore what cannot be processed
+                    // Ignore inaccessible processes
                 }
             }
 
             return processIcons;
         }
+
+        private Icon ExtractIconFromPath(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return null;
+
+            var shinfo = new SHFILEINFO();
+            IntPtr hImg = SHGetFileInfo(path, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo),
+                SHGFI_ICON | SHGFI_LARGEICON);
+
+            return hImg != IntPtr.Zero ? Icon.FromHandle(shinfo.hIcon) : null;
+        }
+
+        private Icon ExtractIconFromWindow(Process process)
+        {
+            IntPtr hWnd = GetProcessMainWindow(process);
+            if (hWnd == IntPtr.Zero) return null;
+
+            IntPtr iconHandle = GetClassLongPtr(hWnd, GCL_HICON);
+            if (iconHandle == IntPtr.Zero)
+            {
+                iconHandle = GetClassLongPtr(hWnd, GCL_HICONSM);
+            }
+
+            return iconHandle != IntPtr.Zero ? Icon.FromHandle(iconHandle) : null;
+        }
+
+        private IntPtr GetProcessMainWindow(Process process)
+        {
+            IntPtr windowHandle = IntPtr.Zero;
+
+            EnumWindows((hWnd, lParam) =>
+            {
+                GetWindowThreadProcessId(hWnd, out int windowProcessId);
+                if (windowProcessId == process.Id)
+                {
+                    windowHandle = hWnd;
+                    return false; // Stop enumeration
+                }
+                return true;
+            }, IntPtr.Zero);
+
+            return windowHandle;
+        }
+
 
         private void SaveSelectedItemToRegistry(string selectedItem)
         {
@@ -253,7 +317,7 @@ namespace Resolution_Changer
 
         private void btn_refreshList_Click(object sender, EventArgs e)
         {
-            LoadProcesses();
+            LoadProcesses(listView_processExplorer, imageListProcesses);
         }
     }
 }
